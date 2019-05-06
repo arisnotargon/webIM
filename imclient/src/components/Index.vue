@@ -191,7 +191,7 @@ export default {
       } else {
         this.wsLink.send(JSON.stringify(
           {
-            'roomId': 1,
+            'roomId': this.msgShowListId,
             'content': this.inputContent
           }
         ))
@@ -210,7 +210,15 @@ export default {
         // 直接把目前唯一一个聊天室设为显示的聊天室
         this.msgShowListId = 1
       } else if (resData.type === 'msg') {
-        // 收到消息
+        console.log('in single smg')
+        // 收到单条消息
+        this.msgList[resData.roomId].msgList.push({
+          content: resData.content,
+          nickName: resData.nickName,
+          sendTime: resData.sendTime
+        })
+        console.log('========================>')
+        console.log(this.msgList[resData.roomId].msgList)
         console.log(resData)
       }
     }

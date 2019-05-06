@@ -39,7 +39,7 @@ let roomList = [
     "userList": [],
     //消息列表
     "msgList": [
-      {"nickName":"aaa","sendTime":1550853969543,"content":"消息内容纯文本"},
+      {"nickName":"aaa","sendTime":1550853969543000,"content":"消息内容纯文本"},
     ]
   }
 ]
@@ -72,7 +72,6 @@ app.all('*', function (req, res, next) {
 
 app.get('/', function (req, res) {
   //用了cookie-parser中间件之后会多一个req.cookies对象,里面是处理成键值对的cookie
-  // console.log(req.cookies);
   res.send('it works');
 });
 
@@ -87,8 +86,6 @@ app.get('/getUserInfo', function (request, response) {
     response.status(401).send('{"status":"not authorised"}')
   } else {
     // 有用户信息返回用户名等信息
-    console.log('有cookie');
-    console.log(userInfo[sessionId])
     // 用户信息续命
     userInfo[sessionId].expired_at += 3600 * 1000
     response.send(`{"status":"ok","nickName":"${userInfo[sessionId].name}"}`);
@@ -139,33 +136,33 @@ const wsServer = new WebSocketServer({
 });
 
 wsServer.on('connection', (ws, req) => {
-  console.log(userInfo)
+  // console.log(userInfo)
   //ws是对应客户端的连接实例
-  console.log(cookie.parse(req.headers.cookie));
+  // console.log(cookie.parse(req.headers.cookie));
   let jsonCookie = cookie.parse(req.headers.cookie);
-  console.log('已连接客户端')
+  // console.log('已连接客户端')
   if (!jsonCookie.ssid) {
-    console.log('无登录认证头');
+    // console.log('无登录认证头');
     //401要求重新登录
     ws.send(`{"code":401}`);
   } else if(!userInfo[jsonCookie.ssid]) {
-    console.log('无认证头对应用户信息');
+    // console.log('无认证头对应用户信息');
     ws.send(`{"code":401}`);
   } else if(userInfo[jsonCookie.ssid].expired_at < Date.now()) {
-    console.log('认证过期');
+    // console.log('认证过期');
     ws.send(`{"code":401}`);
   } else {
     //如果当前用户不在指定房间将当期用户ssid推进聊天室用户列表数组
-    if(roomList[0].userList.indexOf(jsonCookie.ssid) >= 0) {
+    if(roomList[0].userList.indexOf(jsonCookie.ssid) === -1) {
       roomList[0].userList.push(jsonCookie.ssid);
     }
     // 将用户链接加入到用户属性中,断开时设空
     userInfo[jsonCookie.ssid].wsLink = ws;
-    console.log(roomList);
+    console.log('room listttttt:::::',roomList[0]);
+    console.log('userinfo:::::::::::::::::',userInfo);
     //处理消息
     let retList = {};
     roomList.forEach((val) => {
-      console.log(val.userList.indexOf(jsonCookie.ssid))
       if(val.userList.indexOf(jsonCookie.ssid) >= 0) {
         retList[val.id] = {
           "name": val.name,
@@ -202,13 +199,11 @@ wsServer.on('connection', (ws, req) => {
       return
     }
 
-    console.log(msg)
     msg = JSON.parse(msg)
-    console.log(msg.content)
     let sendRoomInx = null;
     //压入
     roomList.forEach((v,k)=> {
-      console.log(k,v)
+      // console.log(k,v)
       if (v.id === msg.roomId) {
         sendRoomInx = k;
         let currentMsg =  {
@@ -218,8 +213,6 @@ wsServer.on('connection', (ws, req) => {
         };
         roomList[k].msgList.push(currentMsg);
         console.log('roomList',roomList)
-
-        console.log()
 
         //遍历当前收到消息所属的房间的用户列表
         roomList[sendRoomInx].userList.forEach(ssidv => {
@@ -232,7 +225,8 @@ wsServer.on('connection', (ws, req) => {
                 'type': 'msg',
                 'sendTime': currentMsg.sendTime,
                 'nickName': currentMsg.nickName,
-                'content': msg.content
+                'content': msg.content,
+                'roomId' : roomList[sendRoomInx].id
               })
             );
           }
