@@ -5,7 +5,7 @@
       <div v-if="nickName==null">请先设置昵称</div>
       <div v-else>当前昵称:<span v-html="nickName"></span></div>
       操作区
-      <input id="namein" type="text" v-model="nickName" /><button @click="setName()">提交昵称</button>
+      <input v-on:keyup.enter="setName" id="namein" type="text" v-model="nickName"/><button @click="setName()">提交昵称</button>
     </div>
     <div class="show-zone">
       显示区
@@ -16,7 +16,7 @@
           {{msg.content}}
         </div>
       </div>
-      <input id="contentin" type="text" ref="contentInput" v-model="inputContent" /><button @click="sendContent()">发送</button>
+      <input v-on:keyup.enter="sendContent" id="contentin" type="text" ref="contentInput" v-model="inputContent" /><button @click="sendContent()">发送</button>
     </div>
   </div>
 </template>
