@@ -36,7 +36,7 @@ export default {
   },
   filters: {
     formatDate:function (date) {
-      var d = new Date(date)
+      var d = new Date(date * 1000)
       var year = d.getFullYear()
       var month = d.getMonth() + 1
       var day = d.getDate() <10 ? '0' + d.getDate() : '' + d.getDate()
@@ -210,16 +210,12 @@ export default {
         // 直接把目前唯一一个聊天室设为显示的聊天室
         this.msgShowListId = 1
       } else if (resData.type === 'msg') {
-        console.log('in single smg')
         // 收到单条消息
         this.msgList[resData.roomId].msgList.push({
           content: resData.content,
           nickName: resData.nickName,
           sendTime: resData.sendTime
         })
-        console.log('========================>')
-        console.log(this.msgList[resData.roomId].msgList)
-        console.log(resData)
       }
     }
   }

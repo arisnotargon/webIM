@@ -39,7 +39,7 @@ let roomList = [
     "userList": [],
     //消息列表
     "msgList": [
-      {"nickName":"aaa","sendTime":1550853969543000,"content":"消息内容纯文本"},
+      {"nickName":"aaa","sendTime":1550853969543,"content":"消息内容纯文本"},
     ]
   }
 ]
@@ -218,7 +218,7 @@ wsServer.on('connection', (ws, req) => {
         roomList[sendRoomInx].userList.forEach(ssidv => {
           console.log('ssid:',ssidv)
           // console.log('')
-          if (userInfo[ssidv] && userInfo[ssidv].expired_at >= Date.now() && userInfo[ssidv].wsLink) {
+          if (userInfo[ssidv] && userInfo[ssidv].expired_at >= Date.now() && userInfo[ssidv].wsLink && userInfo[ssidv].wsLink.readyState === WebSocket.OPEN) {
             userInfo[ssidv].wsLink.send(
               JSON.stringify({
                 'code': 200,
